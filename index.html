@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Tur Virtual — Rumah Minimalis</title>
+  <link rel="stylesheet" href="./gaya/tampilan.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./pustaka/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="viewport"></div>
+
+  <!-- Minimalist Loading Screen -->
+  <div id="loading-overlay">
+    <div class="loading-card">
+      <div class="loading-emblem" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 17.5L18 7l13 10.5"/>
+          <path d="M9 14.5V28h18V14.5"/>
+          <path d="M15 28v-7h6v7"/>
+        </svg>
+      </div>
+      <h1>Rumah Minimalis 3D</h1>
+      <p id="loading-text">Memuat model 3D...</p>
+      <div class="loading-bar">
+        <div id="loading-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Left: Custom Architectural Brand + Active Zone Pill -->
+  <div class="corner-top-left">
+    <div class="brand-chip">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 11.5L12 4l9 7.5"/>
+          <path d="M6.5 9.5V20h11V9.5"/>
+          <path d="M12 20v-5.5"/>
+        </svg>
+      </span>
+      <span class="room-dot" aria-hidden="true"></span>
+      <span id="room-badge" class="room-pill">Jalan Depan</span>
+    </div>
+  </div>
+
+  <!-- Top Center: Sleek Obsidian Glass Command Dock -->
+  <header class="top-dock" aria-label="Kontrol Tampilan 3D">
+    <div class="seg-group" role="group" aria-label="Mode Navigasi">
+      <button type="button" class="dock-btn active" data-mode="tour" title="Tur Terpandu (Scene)">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="10" r="2.2"/>
+          <path d="M2.5 10s3-5 7.5-5 7.5 5 7.5 5-3 5-7.5 5-7.5-5-7.5-5z"/>
+        </svg>
+        <span>Tur</span>
+      </button>
+      <button type="button" class="dock-btn" data-mode="walk" title="Jalan Bebas (WASD / Seret)">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10.5" cy="4" r="1.5"/>
+          <path d="M7.5 17l2-4.5 2.5 1.8V17"/>
+          <path d="M7 11l3-3.5 3 2"/>
+        </svg>
+        <span>Jelajah</span>
+      </button>
+      <button type="button" class="dock-btn" data-mode="dollhouse" title="Maket Aksonometri 3D (M)">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 3L3.5 6.8v6.4L10 17l6.5-3.8V6.8L10 3z"/>
+          <path d="M3.5 6.8L10 10.5l6.5-3.7M10 17v-6.5"/>
+        </svg>
+        <span>Maket</span>
+      </button>
+    </div>
+
+    <span class="dock-sep" aria-hidden="true"></span>
+
+    <div class="seg-group compact" role="group" aria-label="Gaya Render">
+      <button type="button" class="dock-btn active" data-style="realita" title="PBR Realita">Realita</button>
+      <button type="button" class="dock-btn" data-style="sketchup" title="SketchUp Style">SketchUp</button>
+      <button type="button" class="dock-btn" data-style="monokrom" title="Clay Monokrom">Mono</button>
+    </div>
+
+    <span class="dock-sep" aria-hidden="true"></span>
+
+    <div class="icon-group">
+      <button type="button" id="btn-edges" class="icon-btn" title="Garis Tepi (E)" aria-label="Garis Tepi">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="12" height="12" rx="1.5"/>
+          <path d="M4 10h12M10 4v12"/>
+        </svg>
+      </button>
+
+      <button type="button" id="btn-roof-toggle" class="icon-btn" title="Potong Atap (M)" aria-label="Potong Atap">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L10 5l7 5.5"/>
+          <path d="M5.5 16h9"/>
+          <path d="M3 13.5h14" stroke-dasharray="2 2"/>
+        </svg>
+      </button>
+
+      <label class="sun-chip" title="Jam Matahari">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="10" cy="10" r="3.2"/>
+          <path d="M10 3v1.8M10 15.2V17M3 10h1.8M15.2 10H17M5.1 5.1l1.2 1.2M13.7 13.7l1.2 1.2M14.9 5.1l-1.2 1.2M6.3 13.7l-1.2 1.2"/>
+        </svg>
+        <input id="sun-slider" type="range" min="7.0" max="17.0" step="0.25" value="10.5" />
+        <span id="sun-label" class="sun-time">10:30</span>
+      </label>
+
+      <button type="button" id="btn-pointer-lock" class="icon-btn hidden" title="Kunci Kursor (FPS)" aria-label="Kunci Kursor">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="10" cy="10" r="5"/>
+          <path d="M10 2.5v2.5M10 15v2.5M2.5 10H5M15 10h2.5"/>
+        </svg>
+      </button>
+
+      <button type="button" id="btn-minimap-toggle" class="icon-btn active" title="Tampil/Tutup Denah" aria-label="Denah">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3.5" y="3.5" width="13" height="13" rx="2"/>
+          <path d="M9.5 3.5v13M3.5 10h6"/>
+        </svg>
+      </button>
+
+      <button type="button" id="btn-help-toggle" class="icon-btn" title="Pintasan Kontrol" aria-label="Bantuan">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="10" r="6.8"/>
+          <path d="M8.3 8a1.8 1.8 0 013.4.7c0 1.2-1.7 1.4-1.7 2.6"/>
+          <circle cx="10" cy="13.8" r="0.5" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Minimalist Help Popover (Hidden by default for ultra-clean viewport) -->
+  <div id="help-popover" class="help-popover hidden" role="tooltip">
+    <div id="walk-hint" class="help-text">Tab 1–9 pilih Scene · Seret putar 360° · E garis · M maket</div>
+  </div>
+
+  <!-- Minimalist Interactive Floorplan Card (Zero Extra Text) -->
+  <aside id="minimap-panel" class="minimap-panel" aria-label="Denah">
+    <div id="minimap-canvas-wrap" class="minimap-wrap" title="Klik area pada denah untuk pindah lokasi">
+      <img src="./aset/denah_lantai.png" alt="Denah" draggable="false" />
+      <span id="minimap-room-label" class="minimap-pill">Jalan Depan</span>
+      <div id="minimap-cone" class="minimap-cone"></div>
+      <div id="minimap-dot" class="minimap-dot"></div>
+    </div>
+  </aside>
+
+  <!-- Minimal Touch / Walk Pad (Walk mode only) -->
+  <div id="mobile-dpad" class="mobile-dpad hidden" aria-label="Navigasi">
+    <button type="button" class="dpad-btn" data-vkey="KeyW" aria-label="Maju">
+      <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4-4 4 4"/></svg>
+    </button>
+    <div class="dpad-row">
+      <button type="button" class="dpad-btn" data-vkey="KeyA" aria-label="Kiri">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4L6 8l4 4"/></svg>
+      </button>
+      <button type="button" class="dpad-btn" data-vkey="KeyS" aria-label="Mundur">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <button type="button" class="dpad-btn" data-vkey="KeyD" aria-label="Kanan">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom Floating Single-Row Scene Dock (Clean & Minimal Narrative) -->
+  <nav class="tour-dock" aria-label="Scene 3D">
+    <div class="auto-progress-track">
+      <div id="auto-tour-progress" class="auto-progress-fill"></div>
+    </div>
+
+    <div class="dock-row">
+      <div class="scene-meta">
+        <span id="tour-counter" class="tour-counter">01/09</span>
+        <span id="tour-title" class="tour-title">Fasad Depan &amp; Carport</span>
+      </div>
+
+      <div id="scene-tabs" class="scene-tabs" role="tablist" aria-label="Scene"></div>
+
+      <div class="tour-transport">
+        <button type="button" id="btn-prev-stop" class="nav-circle" title="Sebelumnya" aria-label="Sebelumnya">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5L5.5 8 10 12.5"/></svg>
+        </button>
+        <button type="button" id="btn-auto-tour" class="auto-btn" title="Putar / Jeda Tur (Spasi)" aria-label="Tur Otomatis">
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M4.5 3l8 5-8 5V3z"/></svg>
+          <span>Tur</span>
+        </button>
+        <button type="button" id="btn-next-stop" class="nav-circle" title="Berikutnya" aria-label="Berikutnya">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5L10.5 8 6 12.5"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module" src="./sumber/utama.js"></script>
+</body>
+</html>
